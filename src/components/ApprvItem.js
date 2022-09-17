@@ -1,15 +1,21 @@
 import React from 'react';
+import { memo } from 'react';
 import { CONSTANT, Color } from '../utils';
 import { View, TouchableOpacity, Text, StyleSheet, Image } from 'react-native';
 
-const ApprvItem = ({ item }) => {
+const ApprvItem = ({ item, ...rest }) => {
 
     const numberWithCommas = (x) => {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
+    
+
     return (
-        <TouchableOpacity style={styles.container}>
+        <TouchableOpacity
+            style={styles.container}
+            {...rest}
+        >
 
             <View style={{
                 width: '100%',
@@ -25,8 +31,8 @@ const ApprvItem = ({ item }) => {
                 <TouchableOpacity>
                     <Image
                         style={{
-                            height: CONSTANT.HEIGHT * 0.032,
-                            width: CONSTANT.HEIGHT * 0.032,
+                            height: CONSTANT.HEIGHT * 0.03,
+                            width: CONSTANT.HEIGHT * 0.03,
                             tintColor: Color.error_red,
                         }}
                         source={require('../res/delete.png')}
@@ -37,7 +43,7 @@ const ApprvItem = ({ item }) => {
 
             <View style={{
                 width: '100%',
-                height: CONSTANT.WIDTH * 0.003,
+                height: 1,
                 backgroundColor: Color.gray,
                 marginVertical: CONSTANT.HEIGHT * 0.015
             }} />
@@ -115,7 +121,7 @@ const ApprvItem = ({ item }) => {
 
             <View style={{
                 width: '100%',
-                height: CONSTANT.WIDTH * 0.003,
+                height: 1,
                 backgroundColor: Color.gray,
                 marginVertical: CONSTANT.HEIGHT * 0.015
             }} />
@@ -145,7 +151,7 @@ const ApprvItem = ({ item }) => {
 
             <View style={{
                 width: '100%',
-                height: CONSTANT.WIDTH * 0.003,
+                height: 1,
                 backgroundColor: Color.gray,
                 marginVertical: CONSTANT.HEIGHT * 0.015
             }} />
@@ -184,7 +190,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '85%',
         borderRadius: CONSTANT.HEIGHT * 0.025,
-        borderWidth: CONSTANT.WIDTH * 0.003,
+        borderWidth: 1,
         borderColor: Color.gray,
         marginBottom: CONSTANT.HEIGHT * 0.025,
         paddingHorizontal: '5%',
@@ -197,4 +203,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default ApprvItem
+export default memo(ApprvItem)

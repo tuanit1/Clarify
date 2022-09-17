@@ -1,4 +1,5 @@
 import React from 'react';
+import { memo } from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native'
 import { CONSTANT, Color } from '../utils';
 
@@ -21,4 +22,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Progressbar;
+export default memo(Progressbar);

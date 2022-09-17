@@ -1,48 +1,122 @@
 import React from 'react';
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useRef, useCallback } from 'react';
 import {
     View, Text, TouchableOpacity, RefreshControl,
     ScrollView, StyleSheet, StatusBar,
     SafeAreaView, Image, FlatList
 } from 'react-native';
 import MainReducer from '../reducers/MainReducer';
-import { SET_DATA, SET_REFRESHING, SET_SHOW_PROGRESS } from '../reducers/MainReducer';
+import { DETAIL_SCREEN } from '../utils/Constant';
+import { SET_DATA, SET_REFRESHING, SET_SHOW_PROGRESS, SET_FEATURE } from '../reducers/MainReducer';
 import { Color, CONSTANT } from '../utils';
 import { createRequest } from '../utils';
 import Progressbar from '../components/Progressbar';
 import ApprvItem from '../components/ApprvItem';
+import BottomSheet from 'reanimated-bottom-sheet';
+import FeatureScreen from './FeatureScreen';
+
 
 const MainScreen = ({ navigation }) => {
 
     const initState = {
         approvals: [],
+        features: [],
+        approvers: [],
+        feature_selected: 0,
         refreshing: false,
         showProgress: true
     }
 
     const [state, dispatch] = useReducer(MainReducer, initState);
+    const bottomSheet = useRef();
 
-    console.log("re-render main: ", state)
+    console.log("re-render main: ", state.approvers)
 
     const fetchData = async () => {
 
         dispatch(SET_SHOW_PROGRESS(true));
 
         const get_data_url = CONSTANT.SERVER_URL + 'approval/getAll.php';
+        const get_feature_url = CONSTANT.SERVER_URL + 'feature/getAll.php';
+        const get_approver_url = CONSTANT.SERVER_URL + 'approver/getAll.php';
 
         const approvals = await createRequest(get_data_url, 'GET', {});
+        const features = await createRequest(get_feature_url, 'GET', {})
+        const approvers = await createRequest(get_approver_url, 'GET', {});
 
-        dispatch(SET_DATA(approvals.data))
+        features.data.splice(0, 0, { id: "0", name: 'All' });
+
+        dispatch(SET_DATA(approvals.data, features.data, approvers.data))
     }
+
+    const getFeatureName = (id) => {
+
+        const name = state.features.map(feature => {
+            if (feature.id == id) {
+                return feature.name
+            }
+        })
+
+        return name ? name : 'Unknown';
+
+    }
+
+    const openUpdateScreen = (item) => {
+        navigation.navigate(DETAIL_SCREEN, {
+            type: 'update',
+            mItem: item,
+            features: state.features,
+            approvers: state.approvers,
+            fetchData
+        })
+    }
+
+    const getFilterApproval = () => {
+        if (state.feature_selected == 0) {
+
+            return (
+                <>
+                    {state.approvals.map((item) => {
+                        return <ApprvItem
+                            key={item.id}
+                            item={item}
+                            onPress={() =>  openUpdateScreen(item)}/>
+                    })}
+                </>
+            )
+
+        } else {
+            const filter_approvals = state.approvals.filter(item => item.id_feature == state.feature_selected);
+
+            return (
+                <>
+                    {filter_approvals.map((item) => {
+                        return <ApprvItem
+                            key={item.id}
+                            item={item}
+                            onPress={() =>  openUpdateScreen(item)} />
+                    })}
+                </>
+            )
+        }
+    }
+
+    const onFeatureChange = useCallback((id) => {
+        bottomSheet.current.snapTo(1)
+        dispatch(SET_FEATURE(id));
+    }, [])
+
+    useEffect(() => {
+        fetchData();
+    }, [])
+
 
     const onRefresh = () => {
         dispatch(SET_REFRESHING(true));
         fetchData();
     }
 
-    useEffect(() => {
-        fetchData();
-    }, [])
+
 
     return (
 
@@ -66,7 +140,14 @@ const MainScreen = ({ navigation }) => {
 
                 <View style={styles.list_container}>
                     <View style={styles.view_add}>
-                        <TouchableOpacity style={styles.btn_add}>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate(DETAIL_SCREEN, {
+                                type: 'create',
+                                features: state.features,
+                                approvers: state.approvers,
+                                fetchData
+                            })}
+                            style={styles.btn_add}>
                             <Image
                                 style={{
                                     height: CONSTANT.HEIGHT * 0.037,
@@ -84,13 +165,16 @@ const MainScreen = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={styles.view_feature}>
+                    <TouchableOpacity
+                        onPress={() => bottomSheet.current.snapTo(0)}
+                        style={styles.view_feature}>
+
                         <View style={{
                             flex: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}>
-                            <Text style={{ ...styles.feature_title, fontWeight: 'bold' }}>Feature</Text>
+                            <Text style={{ ...styles.feature_title }}>Feature</Text>
                         </View>
                         <View style={{
                             width: CONSTANT.WIDTH * 0.005,
@@ -100,12 +184,12 @@ const MainScreen = ({ navigation }) => {
 
                         </View>
                         <View style={{
-                            flex: 1.5,
+                            flex: 1.6,
                             flexDirection: 'row',
                             justifyContent: 'space-evenly',
                             alignItems: 'center',
                         }}>
-                            <Text style={styles.feature_title}>Default</Text>
+                            <Text style={{ ...styles.feature_title, fontWeight: 'bold' }}>{getFeatureName(state.feature_selected)}</Text>
                             <Image
                                 style={{
                                     height: CONSTANT.HEIGHT * 0.03,
@@ -117,15 +201,29 @@ const MainScreen = ({ navigation }) => {
                         </View>
                     </TouchableOpacity>
 
-                    {state.approvals.map((item) => {
-                        return <ApprvItem key={item.id} item={item} />
-                    })}
+                    {getFilterApproval()}
                 </View>
             </ScrollView>
 
             {state.showProgress &&
                 <Progressbar top={CONSTANT.HEIGHT * 0.6} />
             }
+
+            <BottomSheet
+                ref={bottomSheet}
+                initialSnap={1}
+                snapPoints={[CONSTANT.HEIGHT, 0]}
+                enabledGestureInteraction={false}
+                renderContent={() => {
+                    return (
+                        <FeatureScreen
+                            onFeatureChange={onFeatureChange}
+                            bottomSheet={bottomSheet}
+                            features={state.features}
+                            selected={state.feature_selected} />
+                    )
+                }}
+            />
         </SafeAreaView>
 
     )
@@ -175,7 +273,7 @@ const styles = StyleSheet.create({
         width: '85%',
         height: CONSTANT.HEIGHT * 0.085,
         marginTop: CONSTANT.HEIGHT * 0.04,
-        borderRadius: CONSTANT.HEIGHT * 0.035,
+        borderRadius: CONSTANT.HEIGHT * 0.03,
         borderWidth: CONSTANT.WIDTH * 0.003,
         borderColor: Color.orange,
         marginBottom: CONSTANT.HEIGHT * 0.025,

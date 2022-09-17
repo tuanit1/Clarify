@@ -1,5 +1,6 @@
 const initState = {
     approvals: [],
+    feature_selected: 0,
     refreshing: false,
     showProgress: true
 }
@@ -11,8 +12,16 @@ const MainReducer = (state, action) => {
             return {
                 ...state,
                 approvals: action.approvals,
+                features: action.features,
+                approvers: action.approvers,
                 refreshing: false,
                 showProgress: false,
+            }
+
+        case 'SET_FEATURE':
+            return {
+                ...state,
+                feature_selected: action.id
             }
 
         case 'SET_REFRESHING':
@@ -27,13 +36,15 @@ const MainReducer = (state, action) => {
                 showProgress: action.visible,
             }
     }
-} 
+}
 
 //Action
-export const SET_DATA = (approvals) => {
+export const SET_DATA = (approvals, features, approvers) => {
     return {
         type: 'SET_DATA',
-        approvals
+        approvals,
+        features,
+        approvers
     }
 }
 
@@ -50,5 +61,13 @@ export const SET_SHOW_PROGRESS = (visible) => {
         visible
     }
 }
+
+export const SET_FEATURE = (id) => {
+    return {
+        type: 'SET_FEATURE',
+        id
+    }
+}
+
 
 export default MainReducer

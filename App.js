@@ -6,7 +6,6 @@ import AppStack from "./src/navigations/AppStack";
 const App = () => {
     return (
 
-
         <NavigationContainer>
             <AppStack/>
         </NavigationContainer>
