@@ -3,13 +3,13 @@ import { memo } from 'react';
 import { CONSTANT, Color } from '../utils';
 import { View, TouchableOpacity, Text, StyleSheet, Image } from 'react-native';
 
-const ApprvItem = ({ item, ...rest }) => {
+const ApprvItem = ({ item, handleDelete, ...rest }) => {
 
     const numberWithCommas = (x) => {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
-    
+
 
     return (
         <TouchableOpacity
@@ -28,7 +28,8 @@ const ApprvItem = ({ item, ...rest }) => {
                     }}>{item.alias}</Text>
                 </View>
 
-                <TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => handleDelete(item.id)}>
                     <Image
                         style={{
                             height: CONSTANT.HEIGHT * 0.03,

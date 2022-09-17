@@ -61,6 +61,20 @@ const MainScreen = ({ navigation }) => {
 
     }
 
+    const handleDelete = async (id) => {
+        const url = CONSTANT.SERVER_URL + 'approval/delete.php';
+        const result = await createRequest(url, 'DELETE', {
+            id: id
+        })
+
+        if (result.status == 1) {
+            alert("Success");
+            fetchData();
+        } else {
+            alert("Fail")
+        }
+    }
+
     const openUpdateScreen = (item) => {
         navigation.navigate(DETAIL_SCREEN, {
             type: 'update',
@@ -80,7 +94,9 @@ const MainScreen = ({ navigation }) => {
                         return <ApprvItem
                             key={item.id}
                             item={item}
-                            onPress={() =>  openUpdateScreen(item)}/>
+                            onPress={() => openUpdateScreen(item)}
+                            handleDelete={handleDelete}
+                        />
                     })}
                 </>
             )
@@ -94,7 +110,7 @@ const MainScreen = ({ navigation }) => {
                         return <ApprvItem
                             key={item.id}
                             item={item}
-                            onPress={() =>  openUpdateScreen(item)} />
+                            onPress={() => openUpdateScreen(item)} />
                     })}
                 </>
             )
@@ -248,6 +264,7 @@ const styles = StyleSheet.create({
         marginTop: - CONSTANT.HEIGHT * 0.035,
         borderTopLeftRadius: CONSTANT.HEIGHT * 0.035,
         borderTopRightRadius: CONSTANT.HEIGHT * 0.035,
+        paddingBottom: CONSTANT.HEIGHT * 0.05,
         backgroundColor: 'white',
         alignItems: 'center'
     },
