@@ -7,8 +7,6 @@ const InputForm = ({ title, value, onPress,
 
     const [isFirst, setIsFirst] = useState(true);
 
-    console.log(title, isFirst)
-
     const isNumeric = (str) => {
         if (typeof str != "string") return false
         return !isNaN(str) &&

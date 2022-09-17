@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useReducer, useRef, useCallback } from 'react';
+import { useEffect, useReducer, useRef, useCallback, useState } from 'react';
 import {
     View, Text, TouchableOpacity, RefreshControl,
     ScrollView, StyleSheet, StatusBar,
@@ -14,7 +14,7 @@ import Progressbar from '../components/Progressbar';
 import ApprvItem from '../components/ApprvItem';
 import BottomSheet from 'reanimated-bottom-sheet';
 import FeatureScreen from './FeatureScreen';
-
+import ConfirmModal from '../components/ConfirmModal';
 
 const MainScreen = ({ navigation }) => {
 
@@ -28,9 +28,10 @@ const MainScreen = ({ navigation }) => {
     }
 
     const [state, dispatch] = useReducer(MainReducer, initState);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalParam, setModalParam] = useState({ title: 'Title', message: 'Descriptions' });
+    const [deleteID, setDeleteID] = useState(0);
     const bottomSheet = useRef();
-
-    console.log("re-render main: ", state.approvers)
 
     const fetchData = async () => {
 
@@ -61,14 +62,23 @@ const MainScreen = ({ navigation }) => {
 
     }
 
-    const handleDelete = async (id) => {
+    const clickDelete = (id) => {
+        setDeleteID(id);
+        setModalParam({
+            title: 'Confirm to Delete',
+            message: 'Are you sure you want to delete this Approval Matrix?'
+        });
+        setModalVisible(true);
+    }
+
+    const handleDelete = async () => {
+
         const url = CONSTANT.SERVER_URL + 'approval/delete.php';
         const result = await createRequest(url, 'DELETE', {
-            id: id
+            id: deleteID
         })
 
         if (result.status == 1) {
-            alert("Success");
             fetchData();
         } else {
             alert("Fail")
@@ -95,7 +105,7 @@ const MainScreen = ({ navigation }) => {
                             key={item.id}
                             item={item}
                             onPress={() => openUpdateScreen(item)}
-                            handleDelete={handleDelete}
+                            handleDelete={() => clickDelete(item.id)}
                         />
                     })}
                 </>
@@ -110,7 +120,9 @@ const MainScreen = ({ navigation }) => {
                         return <ApprvItem
                             key={item.id}
                             item={item}
-                            onPress={() => openUpdateScreen(item)} />
+                            onPress={() => openUpdateScreen(item)}
+                            handleDelete={() => clickDelete(item.id)}
+                        />
                     })}
                 </>
             )
@@ -140,6 +152,14 @@ const MainScreen = ({ navigation }) => {
             <StatusBar
                 backgroundColor={Color.orange}
             />
+
+            <ConfirmModal
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                param={modalParam}
+                listener={handleDelete}
+            />
+
             <ScrollView style={{ flex: 1, backgroundColor: 'white' }}
                 refreshControl={
                     <RefreshControl
