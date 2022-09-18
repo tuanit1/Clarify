@@ -100,7 +100,7 @@ const DetailScreen = ({ navigation, route }) => {
         if (min === 0) {
             msg += "\n• Minimum of Approval missing"
             isError = true;
-        } else if (!isNumeric(min)) {
+        } else if (!isNumeric(min.trim())) {
             msg += "\n• Minimum of Approval must be numeric"
             isError = true;
         }
@@ -109,12 +109,12 @@ const DetailScreen = ({ navigation, route }) => {
             msg += "\n• Maximum of Approval missing"
             isError = true;
         }
-        else if (!isNumeric(max)) {
+        else if (!isNumeric(max.trim())) {
             msg += "\n• Maximum of Approval must be numeric"
             isError = true;
         }
 
-        if (isNumeric(min) && isNumeric(max) && min > max) {
+        if (isNumeric(min.trim()) && isNumeric(max.trim() && min > max)) {
             msg += "\n• Minimum of Approval can not greater than Maximum of Approval"
             isError = true;
         }
