@@ -11,6 +11,8 @@ import FeatureScreen from './FeatureScreen';
 import ApproverScreen from './ApproverScreen';
 import { createRequest } from '../utils';
 import { SERVER_URL } from '../utils/Constant';
+import MessageModal from '../components/MessageModal';
+import ConfirmModal from '../components/ConfirmModal';
 
 const DetailScreen = ({ navigation, route }) => {
 
@@ -24,6 +26,13 @@ const DetailScreen = ({ navigation, route }) => {
     const [number, setNumber] = useState(mItem ? mItem.number : '');
     const [mApprovers, setMApprovers] = useState(mItem ? mItem.approver : []);
     const [featureSelect, setFeatureSelect] = useState(mItem ? mItem.id_feature : -1);
+
+    const [msgModalVisible, setMsgModalVisible] = useState(false);
+    const [msgModalParam, setMsgModalParam] = useState({ title: 'Title', message: 'Descriptions' });
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalParam, setModalParam] = useState({ title: 'Title', message: 'Descriptions' });
+    const [modalListener, setModalListener] = useState(() => () => { })
 
     const getFeatureText = useCallback(() => {
 
@@ -57,72 +66,174 @@ const DetailScreen = ({ navigation, route }) => {
     }, [mApprovers])
 
     const handleReset = () => {
+
         setAlias('')
         setMin('')
         setMax('')
         setNumber('')
         setMApprovers([])
         setFeatureSelect(-1)
+
+    }
+
+    const isNumeric = (str) => {
+        if (typeof str != "string") return false
+        return !isNaN(str) &&
+            !isNaN(parseFloat(str))
     }
 
     const verifyForm = () => {
-        if (alias === '' || featureSelect == -1 || min === '' || max === '' || number === '') {
-            return false;
-        }else{
-            return true;
+
+        let msg = '';
+        let isError = false;
+
+        if (alias === '') {
+            msg += "\n• Alias missing"
+            isError = true;
         }
+
+        if (featureSelect == -1) {
+            msg += "\n• Feature missing"
+            isError = true;
+        }
+
+        if (min === 0) {
+            msg += "\n• Minimum of Approval missing"
+            isError = true;
+        } else if (!isNumeric(min)) {
+            msg += "\n• Minimum of Approval must be numeric"
+            isError = true;
+        }
+
+        if (max === 0) {
+            msg += "\n• Maximum of Approval missing"
+            isError = true;
+        }
+        else if (!isNumeric(max)) {
+            msg += "\n• Maximum of Approval must be numeric"
+            isError = true;
+        }
+
+        if (isNumeric(min) && isNumeric(max) && min > max) {
+            msg += "\n• Minimum of Approval can not greater than Maximum of Approval"
+            isError = true;
+        }
+
+        if (number === 0) {
+            msg += "\n• Number of Approval missing"
+            isError = true;
+        } else if (!isNumeric(number)) {
+            msg += "\n• Number of Approval must be numeric"
+            isError = true;
+        }
+
+        if (isError) {
+
+            setMsgModalParam({
+                title: 'Failed',
+                message: msg.trim()
+            })
+            setMsgModalVisible(true)
+
+            return false
+        } else {
+
+            return true
+        }
+
     }
+
 
     const handleCreate = async () => {
 
-        if(!verifyForm()){
-           alert("Some requirement field are missing or invalid! Please check again!") ;
-           return;
+        if (!verifyForm()) {
+            return;
         }
 
-        const url = SERVER_URL + 'approval/create.php';
-        const result = await createRequest(url, 'POST', {
-            alias: alias,
-            id_feature: featureSelect,
-            range_min: min,
-            range_max: max,
-            number: number,
-            approvers: mApprovers
+        setModalParam({
+            title: 'Comfirm to Add',
+            message: 'Please confirm to create new Approval Matrix'
         })
 
-        if (result.status == 1) {
-            alert("Success");
-            handleReset();
-            fetchData();
-        } else {
-            alert("Fail")
-        }
+        setModalListener(() => async () => {
+            const url = SERVER_URL + 'approval/create.php';
+            const result = await createRequest(url, 'POST', {
+                alias: alias,
+                id_feature: featureSelect,
+                range_min: min,
+                range_max: max,
+                number: number,
+                approvers: mApprovers
+            })
+
+            if (result.status == 1) {
+
+                setMsgModalParam({
+                    title: 'Success',
+                    message: 'New Approval Matrix added'
+                })
+                setMsgModalVisible(true)
+
+                handleReset();
+                fetchData();
+            } else {
+                setMsgModalParam({
+                    title: 'Failed',
+                    message: 'Something wrong happened! Please try again!'
+                })
+                setMsgModalVisible(true)
+            }
+        })
+
+        setModalVisible(true);
+
+
     }
 
     const handleUpdate = async () => {
 
-        if(!verifyForm()){
-           alert("Some requirement field are missing or invalid! Please check again!") ;
-           return;
+        if (!verifyForm()) {
+            return;
         }
 
-        const url = SERVER_URL + 'approval/update.php';
-        const result = await createRequest(url, 'PUT', {
-            id: mItem.id,
-            alias: alias,
-            id_feature: featureSelect,
-            range_min: min,
-            range_max: max,
-            number: number,
-            approvers: mApprovers
+        setModalParam({
+            title: 'Comfirm to Update',
+            message: 'Please confirm to update this Approval Matrix'
         })
 
-        if (result.status == 1) {
-            alert("Success");
-            fetchData();
-        } else {
-            alert("Fail")
-        }
+        setModalListener(() => async () => {
+            const url = SERVER_URL + 'approval/update.php';
+            const result = await createRequest(url, 'PUT', {
+                id: mItem.id,
+                alias: alias,
+                id_feature: featureSelect,
+                range_min: min,
+                range_max: max,
+                number: number,
+                approvers: mApprovers
+            })
+
+            if (result.status == 1) {
+
+                setMsgModalParam({
+                    title: 'Success',
+                    message: 'New Approval Matrix updated'
+                })
+                setMsgModalVisible(true)
+
+                handleReset();
+                fetchData();
+            } else {
+                setMsgModalParam({
+                    title: 'Failed',
+                    message: 'Something wrong happened! Please try again!'
+                })
+                setMsgModalVisible(true)
+            }
+        })
+
+        setModalVisible(true);
+
     }
 
     const onChangeAlias = useCallback((text) => {
@@ -184,6 +295,20 @@ const DetailScreen = ({ navigation, route }) => {
             <StatusBar
                 backgroundColor={Color.orange}
             />
+
+            <ConfirmModal
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                param={modalParam}
+                listener={modalListener}
+            />
+
+            <MessageModal
+                modalVisible={msgModalVisible}
+                setModalVisible={setMsgModalVisible}
+                param={msgModalParam}
+            />
+
             <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
                 <View style={styles.header_container}>
                     <View style={{

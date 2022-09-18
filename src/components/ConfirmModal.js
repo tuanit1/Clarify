@@ -58,9 +58,9 @@ const styles = StyleSheet.create({
     },
 
     modal: {
-        width: CONSTANT.WIDTH * 0.8,
+        width: CONSTANT.WIDTH * 0.85,
         paddingVertical: CONSTANT.HEIGHT * 0.05,
-        paddingHorizontal: CONSTANT.WIDTH * 0.1,
+        paddingHorizontal: CONSTANT.WIDTH * 0.05,
         backgroundColor: 'white',
         justifyContent: 'center',
         alignItems: 'center',
@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
 
     message: {
         fontSize: CONSTANT.HEIGHT * 0.02,
+        fontWeight: '500',
         color: 'black',
         textAlign: 'center',
         marginTop: CONSTANT.HEIGHT * 0.03,

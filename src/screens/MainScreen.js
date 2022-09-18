@@ -15,6 +15,7 @@ import ApprvItem from '../components/ApprvItem';
 import BottomSheet from 'reanimated-bottom-sheet';
 import FeatureScreen from './FeatureScreen';
 import ConfirmModal from '../components/ConfirmModal';
+import MessageModal from '../components/MessageModal';
 
 const MainScreen = ({ navigation }) => {
 
@@ -31,6 +32,9 @@ const MainScreen = ({ navigation }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalParam, setModalParam] = useState({ title: 'Title', message: 'Descriptions' });
     const [deleteID, setDeleteID] = useState(0);
+
+    const [msgModalVisible, setMsgModalVisible] = useState(false);
+    const [msgModalParam, setMsgModalParam] = useState({ title: 'Title', message: 'Descriptions' });
     const bottomSheet = useRef();
 
     const fetchData = async () => {
@@ -79,9 +83,21 @@ const MainScreen = ({ navigation }) => {
         })
 
         if (result.status == 1) {
+
+            setMsgModalParam({
+                title: 'Success',
+                message: 'An Approval Matrix removed'
+            })
+            setMsgModalVisible(true)
+
             fetchData();
         } else {
-            alert("Fail")
+            setMsgModalParam({
+                title: 'Failed',
+                message: 'Something wrong happened, please try again!'
+            });
+            setMsgModalVisible(true);
+
         }
     }
 
@@ -158,6 +174,12 @@ const MainScreen = ({ navigation }) => {
                 setModalVisible={setModalVisible}
                 param={modalParam}
                 listener={handleDelete}
+            />
+
+            <MessageModal
+                modalVisible={msgModalVisible}
+                setModalVisible={setMsgModalVisible}
+                param={msgModalParam}
             />
 
             <ScrollView style={{ flex: 1, backgroundColor: 'white' }}

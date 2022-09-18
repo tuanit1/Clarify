@@ -4,8 +4,6 @@ import { CONSTANT, Color } from "../utils";
 
 const MessageModal = ({ modalVisible, setModalVisible, param }) => {
 
-    console.log("re-render modal")
-
     return (
         <Modal
             animationType="fade"
@@ -26,9 +24,11 @@ const MessageModal = ({ modalVisible, setModalVisible, param }) => {
                         }}>
                         <Text style={{
                             color: 'white',
-                            fontSize: CONSTANT.HEIGHT * 0.02,
-                        }}>Okay</Text>
+                            fontSize: CONSTANT.HEIGHT * 0.022,
+                            fontWeight: '900'
+                        }}>OKAY</Text>
                     </TouchableOpacity>
+                    
                 </View>
             </View>
         </Modal>
@@ -46,44 +46,41 @@ const styles = StyleSheet.create({
     },
 
     modal: {
-        width: CONSTANT.WIDTH * 0.7,
-        paddingVertical: CONSTANT.HEIGHT * 0.02,
-        paddingHorizontal: CONSTANT.WIDTH * 0.06,
+        width: CONSTANT.WIDTH * 0.85,
+        paddingVertical: CONSTANT.HEIGHT * 0.05,
+        paddingHorizontal: CONSTANT.WIDTH * 0.05,
         backgroundColor: 'white',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: CONSTANT.HEIGHT * 0.02
     },
 
-    button: {
-        height: CONSTANT.HEIGHT * 0.08,
-        width: CONSTANT.WIDTH * 0.4,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-
     title: {
-        fontSize: CONSTANT.HEIGHT * 0.028,
+        fontSize: CONSTANT.HEIGHT * 0.03,
         fontWeight: 'bold',
-        color: '#282828'
+        color: 'black'
     },
 
     message: {
         fontSize: CONSTANT.HEIGHT * 0.02,
+        fontWeight: '400',
         color: 'black',
         textAlign: 'center',
-        marginTop: CONSTANT.HEIGHT * 0.01,
-        marginBottom: CONSTANT.HEIGHT * 0.03
+        marginTop: CONSTANT.HEIGHT * 0.03,
+        marginBottom: CONSTANT.HEIGHT * 0.05
     },
 
     button: {
         backgroundColor: Color.blue,
-        height: CONSTANT.HEIGHT * 0.047,
-        width: CONSTANT.WIDTH * 0.5,
+        width: CONSTANT.WIDTH * 0.55,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: CONSTANT.HEIGHT * 0.04
-    }
+        paddingVertical: CONSTANT.HEIGHT * 0.01,
+        marginBottom: CONSTANT.HEIGHT * 0.01,
+        borderRadius: CONSTANT.HEIGHT * 0.01,
+
+
+    },
 
 })
 
